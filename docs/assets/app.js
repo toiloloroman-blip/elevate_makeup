@@ -1,5 +1,5 @@
 /* =========================================================
-   ELEVATE MAKEUP â€” behaviour
+   ELEVATE MAKEUP - behaviour
    Loader, nav, reveals, album lightbox, 2-step inquiry modal.
    No dependencies, no build step.
    ========================================================= */
@@ -129,7 +129,7 @@
       pick.date = $('#f-date').value;
       pick.where = $('#f-where').value.trim();
       $('#recap').textContent = [pick.service, pick.faces, pick.date, pick.where]
-        .filter(Boolean).join('  Â·  ');
+        .filter(Boolean).join('  |  ');
       goStep(2);
     });
 
@@ -148,24 +148,24 @@
 
       const payload = {
         access_key: W3_KEY,
-        subject: 'New inquiry â€” ' + (pick.service || 'Makeup') + ' â€” ' + name,
+        subject: 'New inquiry - ' + (pick.service || 'Makeup') + ' - ' + name,
         from_name: 'Elevate Makeup Website',
         // so hitting reply in her inbox goes straight back to the client
         replyto: email,
-        Service: pick.service || 'â€”',
-        Faces: pick.faces || 'â€”',
-        Date: pick.date || 'â€”',
-        'Location / venue': pick.where || 'â€”',
+        Service: pick.service || '-',
+        Faces: pick.faces || '-',
+        Date: pick.date || '-',
+        'Location / venue': pick.where || '-',
         Name: name,
         Email: email,
-        Phone: phone || 'â€”',
-        'Found her via': src || 'â€”',
-        Message: msg || 'â€”'
+        Phone: phone || '-',
+        'Found her via': src || '-',
+        Message: msg || '-'
       };
 
       const label = btn.innerHTML;
       btn.disabled = true;
-      btn.textContent = 'Sendingâ€¦';
+      btn.textContent = 'Sending...';
 
       try {
         const r = await fetch('https://api.web3forms.com/submit', {
