@@ -1,5 +1,5 @@
 /* =========================================================
-   ELEVATE MAKEUP — behaviour
+   ELEVATE MAKEUP â€” behaviour
    Loader, nav, reveals, album lightbox, 2-step inquiry modal.
    No dependencies, no build step.
    ========================================================= */
@@ -129,38 +129,66 @@
       pick.date = $('#f-date').value;
       pick.where = $('#f-where').value.trim();
       $('#recap').textContent = [pick.service, pick.faces, pick.date, pick.where]
-        .filter(Boolean).join('  ·  ');
+        .filter(Boolean).join('  Â·  ');
       goStep(2);
     });
 
-    $('#inq-send').addEventListener('click', () => {
+    const W3_KEY = 'ff5b0a82-14fd-4930-ae3c-eb2c005123e8';
+
+    $('#inq-send').addEventListener('click', async () => {
+      const btn = $('#inq-send');
       const name = $('#f-name').value.trim();
       const email = $('#f-email').value.trim();
       if (!name || !email) { $('#e2').classList.add('show'); return; }
       $('#e2').classList.remove('show');
 
-      // no backend on a static host -- hand off to her mail client with
-      // everything already filled in so nothing gets lost
-      const body = [
-        'Service: ' + (pick.service || '—'),
-        'Faces: ' + (pick.faces || '—'),
-        'Date: ' + (pick.date || '—'),
-        'Location / venue: ' + (pick.where || '—'),
-        '',
-        'Name: ' + name,
-        'Email: ' + email,
-        'Phone: ' + $('#f-phone').value.trim(),
-        'Found via: ' + ($('#f-src').value.trim() || '—'),
-        '',
-        'Message:',
-        $('#f-msg').value.trim() || '—'
-      ].join('\n');
+      const phone = $('#f-phone').value.trim();
+      const src = $('#f-src').value.trim();
+      const msg = $('#f-msg').value.trim();
 
-      window.location.href = 'mailto:Tamara_mua@yahoo.com'
-        + '?subject=' + encodeURIComponent('Inquiry — ' + (pick.service || 'Makeup') + ' — ' + name)
-        + '&body=' + encodeURIComponent(body);
+      const payload = {
+        access_key: W3_KEY,
+        subject: 'New inquiry â€” ' + (pick.service || 'Makeup') + ' â€” ' + name,
+        from_name: 'Elevate Makeup Website',
+        // so hitting reply in her inbox goes straight back to the client
+        replyto: email,
+        Service: pick.service || 'â€”',
+        Faces: pick.faces || 'â€”',
+        Date: pick.date || 'â€”',
+        'Location / venue': pick.where || 'â€”',
+        Name: name,
+        Email: email,
+        Phone: phone || 'â€”',
+        'Found her via': src || 'â€”',
+        Message: msg || 'â€”'
+      };
 
-      goStep(3);
+      const label = btn.innerHTML;
+      btn.disabled = true;
+      btn.textContent = 'Sendingâ€¦';
+
+      try {
+        const r = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const out = await r.json();
+        if (!out.success) throw new Error(out.message || 'send failed');
+        goStep(3);
+      } catch (err) {
+        // never lose an inquiry to a flaky connection -- fall back to her inbox
+        const body = Object.entries(payload)
+          .filter(([k]) => !['access_key', 'subject', 'from_name', 'replyto'].includes(k))
+          .map(([k, v]) => k + ': ' + v).join('\n');
+        window.location.href = 'mailto:Tamara_mua@yahoo.com'
+          + '?subject=' + encodeURIComponent(payload.subject)
+          + '&body=' + encodeURIComponent(body);
+        goStep(3);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = label;
+      }
     });
   }
 
