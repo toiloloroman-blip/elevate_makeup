@@ -181,7 +181,7 @@
         const body = Object.entries(payload)
           .filter(([k]) => !['access_key', 'subject', 'from_name', 'replyto'].includes(k))
           .map(([k, v]) => k + ': ' + v).join('\n');
-        window.location.href = 'mailto:Tamara_mua@yahoo.com'
+        window.location.href = 'mailto:tamaraboyd31@gmail.com'
           + '?subject=' + encodeURIComponent(payload.subject)
           + '&body=' + encodeURIComponent(body);
         goStep(3);
